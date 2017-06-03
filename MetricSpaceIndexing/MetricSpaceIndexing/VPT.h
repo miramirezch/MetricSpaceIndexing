@@ -5,7 +5,7 @@
 #include <random>
 #include <algorithm>
 #include <queue>
-
+#include <stack>
 // Miguel Ramirez Chacon
 // 28/05/17
 // Array based Vantage Point Tree
@@ -60,17 +60,13 @@ namespace metricindexes
 			for (auto i = 0; i < (size - 1); i++)
 			{
 				flags_.push_back(false);
-			}
-
-			auto lower = 0;
-			auto upper = data.size() - 1;
-			auto position = 1;
+			}		
 
 			std::random_device rd;
 			std::mt19937 gen(0);
 			std::uniform_real_distribution<> dis(0, 1);
 
-			Build(data, position, dis, gen);
+			Build(data, 1, dis, gen);
 		}
 
 		void Build(std::vector<T>& data, int position, std::uniform_real_distribution<> dis, std::mt19937 gen)
@@ -143,55 +139,66 @@ namespace metricindexes
 			std::reverse(std::begin(distances), std::end(distances));
 		}
 
-		void Search(unsigned position, const T& target, size_t k,
+		void Search(unsigned position, const T& target, const size_t k,
 			std::priority_queue<HeapItem<T>>& heap, double& _tau) const
 		{
-			if (position > tree_.size() || flags_[position - 1] == false)
+			std::stack<unsigned> snapshotStack;
+			snapshotStack.push(position);
+
+			while (snapshotStack.size() != 0)
 			{
-				return;
-			}
+				auto currentPosition = snapshotStack.top();
+				snapshotStack.pop();
 
-			double dist = distance(tree_[position - 1].Data, target);
-
-			if (dist < _tau)
-			{
-				if (heap.size() == k)
-					heap.pop();
-
-				heap.push(HeapItem<T>(tree_[position - 1].Data, dist));
-
-				if (heap.size() == k)
-					_tau = heap.top().Distance;
-			}
-
-			double dm = tree_[position - 1].Threshold;
-
-			if (dist < dm)
-			{
-				if (dist - _tau <= dm)
+				if (currentPosition > tree_.size() || flags_[currentPosition - 1] == false)
 				{
-					Search(2 * position, target, k, heap, _tau);
+					continue;
 				}
 
-				if (dist + _tau >= dm)
+				double dist = distance(tree_[currentPosition - 1].Data, target);
+
+				if (dist < _tau)
 				{
-					Search(2 * position + 1, target, k, heap, _tau);
+					if (heap.size() == k)
+						heap.pop();
+
+					heap.push(HeapItem<T>(tree_[currentPosition - 1].Data, dist));
+
+					if (heap.size() == k)
+						_tau = heap.top().Distance;
 				}
 
-			}
-			else
-			{
-				if (dist + _tau >= dm)
-				{
-					Search(2 * position + 1, target, k, heap, _tau);
-				}
+				double dm = tree_[currentPosition - 1].Threshold;
 
-				if (dist - _tau <= dm)
+				if (dist < dm)
 				{
-					Search(2 * position, target, k, heap, _tau);
+					if (dist - _tau <= dm)
+					{
+						snapshotStack.push(2 * currentPosition);
+					}
+
+					if (dist + _tau >= dm)
+					{
+						snapshotStack.push(2 * currentPosition + 1);
+					}
+
+				}
+				else
+				{
+					if (dist + _tau >= dm)
+					{
+						snapshotStack.push(2 * currentPosition + 1);
+					}
+
+					if (dist - _tau <= dm)
+					{
+						snapshotStack.push(2 * currentPosition);
+					}
 				}
 			}
-		}
+
+
+		};
+
 	};
-
 }
