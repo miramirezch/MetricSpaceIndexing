@@ -111,6 +111,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="BKT.h" />
     <ClInclude Include="VPT.h" />
   </ItemGroup>
   <ItemGroup>
