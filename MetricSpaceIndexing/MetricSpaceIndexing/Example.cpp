@@ -11,20 +11,15 @@ int main()
 	auto dist = [](const int& p1, const int& p2) {
 		return std::abs((p1 - p2));
 	};
-
-	auto dist3 = [](const int& p1, const int& p2) {
-		return static_cast<unsigned>(std::floor(std::abs((p1 - p2))));
-	};
-
+	
 	//VpTree<int> tree;
-	BKT<int> tree2(dist3);
-
-	tree2.Build(test);
+	BKT<int> tree2;	
 
 	std::vector<int> respuestas;
 	std::vector<double> distancias;
 
 	//tree.Build(test, dist);
+	tree2.Build(test, dist);
 	tree2.KNN(110, 1, respuestas, distancias);
 
 	std::cout << "Hello World" << std::endl;

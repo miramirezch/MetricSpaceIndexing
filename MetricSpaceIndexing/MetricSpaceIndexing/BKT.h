@@ -41,7 +41,7 @@ private:
 	std::function<unsigned(const T&, const T&)> distance;
 
 public:
-	BKT(std::function<unsigned(const T&, const T&)> dist) :distance{ dist } {}
+	BKT() {}	
 
 	void Add(const T& data)
 	{
@@ -79,8 +79,10 @@ public:
 		}
 	}
 
-	void Build(const std::vector<T>& Data)
+	void Build(const std::vector<T>& Data, std::function<unsigned(const T&, const T&)> dist)
 	{
+		distance = dist;
+
 		auto data = Data;
 		while (data.size()>0)
 		{
