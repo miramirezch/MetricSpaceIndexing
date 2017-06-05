@@ -1,6 +1,8 @@
 # MetricSpaceIndexing
 
-Indexes for metric space.
+Indexes for metric space. 
+
+Header only library.
 
 ## Current Indexes
 * Vantage Point Tree - Array Based
