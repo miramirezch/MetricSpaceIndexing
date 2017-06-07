@@ -1,6 +1,7 @@
 #pragma once
-//#include"VPT.h"
+#include "VPT.h"
 #include "BKT.h"
+#include "RevLC.h"
 #include <iostream>
 
 int main()
@@ -11,16 +12,31 @@ int main()
 	auto dist = [](const int& p1, const int& p2) {
 		return std::abs((p1 - p2));
 	};
+
+	auto DiscreteDist = [](const int& p1, const int& p2) {
+		return static_cast<unsigned>(std::abs((p1 - p2)));
+	};
 	
-	//VpTree<int> tree;
-	BKT<int> tree2;	
+	VpTree<int> vpt;
+	vpt.Build(test, dist);
+	
+	BKT<int> bkt;			
+	bkt.Build(test, DiscreteDist);
 
-	std::vector<int> respuestas;
-	std::vector<double> distancias;
+	RevLC<int> lc;
+	lc.Build(test, dist, 3);
 
-	//tree.Build(test, dist);
-	tree2.Build(test, dist);
-	tree2.KNN(110, 1, respuestas, distancias);
+
+	std::vector<int> respuestas1;
+	std::vector<double> distancias1;
+	std::vector<int> respuestas2;
+	std::vector<double> distancias2;
+	std::vector<int> respuestas3;
+	std::vector<double> distancias3;
+	
+	vpt.KNN(110, 1, respuestas1, distancias1);
+	bkt.KNN(110, 1, respuestas2, distancias2);
+	lc.KNN(110, 1, respuestas3, distancias3);
 
 	std::cout << "Hello World" << std::endl;
 }

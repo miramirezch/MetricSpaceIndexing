@@ -112,6 +112,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="BKT.h" />
+    <ClInclude Include="HeapItem.h" />
+    <ClInclude Include="RevLC.h" />
     <ClInclude Include="VPT.h" />
   </ItemGroup>
   <ItemGroup>

@@ -8,36 +8,23 @@
 #include <stack>
 #include <algorithm>
 #include <queue>
+#include "HeapItem.h"
 
 template<typename T>
-struct Node
+struct BKTNode
 {
-	Node() {}
-	Node(T data) : Data{ data } {}
+	BKTNode() {}
+	BKTNode(T data) : Data{ data } {}
 
 	T Data;
-	std::unordered_map<unsigned, Node<T>> children;
+	std::unordered_map<unsigned, BKTNode<T>> children;
 };
-
-template<typename T>
-struct HeapItem
-{
-	HeapItem(T data, double distance) :Data{ data }, Distance{ distance } {}
-	T Data;
-	double Distance;
-
-	bool operator<(const HeapItem& o) const
-	{
-		return Distance < o.Distance;
-	}
-};
-
 
 template<typename T>
 class BKT
 {
 private:
-	std::unique_ptr<Node<T>> root;
+	std::unique_ptr<BKTNode<T>> root;
 	std::function<unsigned(const T&, const T&)> distance;
 
 public:
@@ -47,17 +34,17 @@ public:
 	{
 		if (root == nullptr)
 		{
-			root = std::make_unique<Node<T>>(data);
+			root = std::make_unique<BKTNode<T>>(data);
 		}
 		else
 		{
-			Add(Node<T>(data), *root);
+			Add(BKTNode<T>(data), *root);
 		}
 	}	
 
-	void Add(Node<T>& data, Node<T>& node)
+	void Add(BKTNode<T>& data, BKTNode<T>& node)
 	{
-		std::stack < Node<T>*> nodeStack;
+		std::stack < BKTNode<T>*> nodeStack;
 		nodeStack.push(&node);
 
 		while (nodeStack.size() != 0)
@@ -118,10 +105,10 @@ public:
 		std::reverse(std::begin(distances), std::end(distances));
 	}
 
-	void Search(Node<T>& node, T& target, unsigned k,
+	void Search(BKTNode<T>& node, T& target, unsigned k,
 		std::priority_queue<HeapItem<T>>& heap, double& _tau) const
 	{
-		std::stack<Node<T>*> snapshotStack;
+		std::stack<BKTNode<T>*> snapshotStack;
 		snapshotStack.push(&node);
 
 		while (snapshotStack.size() != 0)

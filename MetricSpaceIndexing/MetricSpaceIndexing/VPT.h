@@ -1,4 +1,5 @@
 #pragma once
+#include "HeapItem.h"
 #include <vector>
 #include <functional>
 #include <cmath>
@@ -14,30 +15,19 @@
 
 
 template<typename T>
-struct Node
+struct VPTNode
 {
 	T Data;
 	double Threshold;
 };
 
-template<typename T>
-struct HeapItem
-{
-	HeapItem(T data, double distance) :Data{ data }, Distance{ distance } {}
-	T Data;
-	double Distance;
 
-	bool operator<(const HeapItem& o) const
-	{
-		return Distance < o.Distance;
-	}
-};
 
 template<typename T>
 class VpTree
 {
 private:
-	std::vector<Node<T>> tree_;
+	std::vector<VPTNode<T>> tree_;
 	std::vector<bool> flags_;
 	std::function<double(const T&, const T&)> distance;
 
@@ -51,7 +41,7 @@ public:
 		auto power = static_cast<unsigned>(std::floor(std::log2(data.size()) + 1));
 		auto size = 1 << power;
 
-		std::vector<Node<T>> temp(size - 1);
+		std::vector<VPTNode<T>> temp(size - 1);
 		tree_ = std::move(temp);
 
 		flags_.reserve(size - 1);
@@ -72,7 +62,7 @@ public:
 	{
 		if (data.size() == 1)
 		{
-			Node<T> node;
+			VPTNode<T> node;
 			node.Threshold = 0;
 			node.Data = data[0];
 
@@ -102,7 +92,7 @@ public:
 			return d(pivot, a) < d(pivot, b);
 		});
 
-		Node<T> node;
+		VPTNode<T> node;
 
 		node.Threshold = distance(pivot, data[median]);
 		node.Data = pivot;
