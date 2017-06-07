@@ -47,7 +47,7 @@ public:
 
 	RevLC() {}
 
-	void Build(const std::vector<T>& db,std::function<double(const T&, const T&)> dist,unsigned m)
+	void Build(const std::vector<T>& db,std::function<double(const T&, const T&)> dist,const unsigned m)
 	{
 		distance = dist;
 		std::vector<T> data = db;
@@ -92,7 +92,7 @@ public:
 
 	}
 
-	void KNN(T target, int k, std::vector<T>& results, std::vector<double>& distances) const
+	void KNN(const T& target, const unsigned k, std::vector<T>& results, std::vector<double>& distances) const
 	{
 		std::priority_queue<HeapItem<T>> heap;
 		double tau = std::numeric_limits<double>::max();
@@ -111,7 +111,7 @@ public:
 
 	}
 
-	void Search(T target, int k, std::priority_queue<HeapItem<T>>& heap, double& tau) const
+	void Search(const T& target, const unsigned k, std::priority_queue<HeapItem<T>>& heap, double& tau) const
 	{
 		for (const auto& cluster : listClusters)
 		{
