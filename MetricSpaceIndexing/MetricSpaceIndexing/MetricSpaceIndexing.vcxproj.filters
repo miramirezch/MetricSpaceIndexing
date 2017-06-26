@@ -27,9 +27,6 @@
     <ClInclude Include="RevLC.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="HeapItem.h">
-      <Filter>General</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Example.cpp">

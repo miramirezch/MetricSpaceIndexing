@@ -6,7 +6,7 @@
 
 int main()
 {
-	std::vector<int> test{ 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,101 };
+	std::vector<int> test{ 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,110};
 	std::vector<int>cosa(10);
 
 	auto dist = [](const int& p1, const int& p2) {
@@ -20,21 +20,21 @@ int main()
 	VpTree<int> vpt;
 	vpt.Build(test, dist);
 	
-	BKT<int> bkt;			
+	BKTree<int> bkt;			
 	bkt.Build(test, DiscreteDist);
-
+	
 	RevLC<int> lc;
-	lc.Build(test, dist, 3);
+	lc.Build(test, dist, 4);
 
 
 	std::vector<int> respuestas1;
 	std::vector<double> distancias1;
 	std::vector<int> respuestas2;
-	std::vector<double> distancias2;
+	std::vector<int> distancias2;
 	std::vector<int> respuestas3;
 	std::vector<double> distancias3;
 	
-	vpt.KNN(110, 1, respuestas1, distancias1);
+	vpt.KNN(111, 1, respuestas1, distancias1);
 	bkt.KNN(110, 1, respuestas2, distancias2);
 	lc.KNN(110, 1, respuestas3, distancias3);
 

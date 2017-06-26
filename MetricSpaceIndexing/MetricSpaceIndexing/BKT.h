@@ -8,87 +8,147 @@
 #include <stack>
 #include <algorithm>
 #include <queue>
-#include "HeapItem.h"
+
+// Miguel Ramirez Chacon
+// 25/06/17
+// Burkhard Keller Tree - No recursion
+// Paper: Some approaches to best-match file searching
+// Author: W.Burkhard and R.Keller.
 
 template<typename T>
-struct BKTNode
-{
-	BKTNode() {}
-	BKTNode(T data) : Data{ data } {}
-
-	T Data;
-	std::unordered_map<unsigned, BKTNode<T>> children;
-};
-
-template<typename T>
-class BKT
+class BKTree
 {
 private:
-	std::unique_ptr<BKTNode<T>> root;
-	std::function<unsigned(const T&, const T&)> distance;
+	
+	struct Node
+	{
+		Node() {}
+		Node(T data) : Data{ data } {}
+
+		T Data;
+		std::vector<std::pair<int, Node>> children;		
+	};
+
+	struct HeapItem
+	{
+		HeapItem(T data, int distance) :Data{ data }, Distance{ distance } {}
+		T Data;
+		int Distance;
+
+		bool operator<(const HeapItem& o) const
+		{
+			return Distance < o.Distance;
+		}
+	};
+
+	std::unique_ptr<Node> root;
+	std::function<int(const T&, const T&)> distance;
 
 public:
-	BKT() {}	
+	BKTree() {}	
 
 	void Add(const T& data)
 	{
 		if (root == nullptr)
 		{
-			root = std::make_unique<BKTNode<T>>(data);
+			root = std::make_unique<Node>(data);
 		}
 		else
-		{
-			Add(BKTNode<T>(data), *root);
+		{			
+			Add(Node(data));
 		}
 	}	
 
-	void Add(BKTNode<T>& data, BKTNode<T>& node)
+	void Add(Node& data)
 	{
-		std::stack < BKTNode<T>*> nodeStack;
-		nodeStack.push(&node);
+		std::stack <Node*> nodeStack;
+		
+		nodeStack.push(root.get());
+		auto flag = false;
+
+		Node* currentNode;
+		int d;
 
 		while (nodeStack.size() != 0)
 		{
-			auto currentPair = nodeStack.top();
+			currentNode = nodeStack.top();
 			nodeStack.pop();
 
-			auto d = distance(data.Data, currentPair->Data);
+			d = distance(data.Data, currentNode->Data);
+			flag = false;
 
-			for (auto& child : currentPair->children)
+			for (auto& child : currentNode->children)
 			{
 				if (d == child.first)
 				{
 					nodeStack.push(&(child.second));
-					continue;
+					flag = true;
+					break;
 				}
 			}
-			currentPair->children.insert({ d, data });
+
+			if (flag == false)
+			{
+				currentNode->children.push_back(std::make_pair(d, Node(data)));
+			}
+			
 		}
 	}
 
-	void Build(const std::vector<T>& Data, std::function<unsigned(const T&, const T&)> dist)
+	void Build(const std::vector<T>& db, std::function<unsigned(const T&, const T&)> dist)
 	{
 		distance = dist;
 
-		auto data = Data;
+		auto data = db;
 		while (data.size()>0)
 		{
 			std::mt19937 gen(0);
 			std::uniform_int_distribution<> dis(0, data.size()-1);
-			int i = dis(gen);
-			std::swap(data[data.size() - 1], data[i]);
+			std::swap(data[data.size() - 1], data[dis(gen)]);			
 			auto pivot = data[data.size() - 1];
 			data.pop_back();
-
 			Add(pivot);
-		}				
+		}
+
+		SortChildren(*root);
 	}
 
-	void KNN(T target, unsigned k, std::vector<T>& results, std::vector<double>& distances) const
+	void SortChildren(Node& node)
 	{
-		std::priority_queue<HeapItem<T>> heap;
+		std::stack<Node*> nodeStack;
+		nodeStack.push(&node);
 
-		double _tau = std::numeric_limits<unsigned>::max();
+		Node* currentNode;
+
+		while (nodeStack.size() != 0)
+		{
+			currentNode = nodeStack.top();
+			nodeStack.pop();
+
+			if (currentNode->children.size() > 0)
+			{
+				std::sort(std::begin(currentNode->children),std::end(currentNode->children),
+					[](const auto& pair1, const auto& pair2) {
+					return pair1.first < pair2.first;
+				});
+			}
+
+			for (auto& child : currentNode->children)
+			{
+				if (child.second.children.size() > 0)
+				{
+					nodeStack.push(&(child.second));
+				}
+			}
+		}
+
+	}
+	
+	void KNN(const T& target, const int k, std::vector<T>& results, std::vector<int>& distances) const
+	{
+		std::priority_queue<HeapItem> heap;
+
+		int _tau = std::numeric_limits<int>::max();
 		Search(*root, target, k, heap, _tau);
 
 		results.clear();
@@ -105,37 +165,44 @@ public:
 		std::reverse(std::begin(distances), std::end(distances));
 	}
 
-	void Search(BKTNode<T>& node, T& target, unsigned k,
-		std::priority_queue<HeapItem<T>>& heap, double& _tau) const
+	
+	void Search(Node& node, const T& target, const int k,
+		std::priority_queue<HeapItem>& heap, int& _tau) const
 	{
-		std::stack<BKTNode<T>*> snapshotStack;
+		std::stack<Node*> snapshotStack;
 		snapshotStack.push(&node);
 
+		Node* currentNode;
+		int dist;
+		
 		while (snapshotStack.size() != 0)
 		{
-			auto currentNode = snapshotStack.top();
+			currentNode = snapshotStack.top();
 			snapshotStack.pop();
 
-			auto dist = distance(currentNode->Data, target);
+			dist = distance(currentNode->Data, target);
 			
 			if (dist <= _tau)
 			{
 				if (heap.size() == k)
 					heap.pop();
 
-				heap.push(HeapItem<T>(currentNode->Data, dist));
+				heap.push(HeapItem(currentNode->Data, dist));
 
 				if (heap.size() == k)
 					_tau = heap.top().Distance;
 			}
 
-			for (int d = dist - _tau; d<= dist + _tau; d++)
-			{
-				if (currentNode->children.find(d) != currentNode->children.end())
+			for (int d = std::max(0,dist - _tau); d<= dist + _tau; d++)
+			{				
+				auto it = std::lower_bound(std::begin(currentNode->children), std::end(currentNode->children), std::make_pair(d, Node(0)),
+					[](const auto& pair1, const auto& pair2) {return pair1.first < pair2.first; });
+								
+				if (it != std::end(currentNode->children) && (it->first == d))
 				{
-					snapshotStack.push(&(currentNode->children[d]));
+					snapshotStack.push(&(currentNode->children[std::distance(std::begin(currentNode->children), it)]).second);
 				}
-			}			
+			}		
 		}
 	}
 };

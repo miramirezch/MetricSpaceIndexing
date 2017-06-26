@@ -43,6 +43,18 @@ class RevLC
 private:
 	std::vector<Cluster<T>> listClusters;
 	std::function<double(const T&, const T&)> distance;
+
+	struct HeapItem
+	{
+		HeapItem(T data, double distance) :Data{ data }, Distance{ distance } {}
+		T Data;
+		double Distance;
+
+		bool operator<(const HeapItem& o) const
+		{
+			return Distance < o.Distance;
+		}
+	};
 public:
 
 	RevLC() {}
@@ -94,7 +106,7 @@ public:
 
 	void KNN(const T& target, const unsigned k, std::vector<T>& results, std::vector<double>& distances) const
 	{
-		std::priority_queue<HeapItem<T>> heap;
+		std::priority_queue<HeapItem> heap;
 		double tau = std::numeric_limits<double>::max();
 	
 		Search(target, k, heap, tau);
@@ -111,7 +123,7 @@ public:
 
 	}
 
-	void Search(const T& target, const unsigned k, std::priority_queue<HeapItem<T>>& heap, double& tau) const
+	void Search(const T& target, const unsigned k, std::priority_queue<HeapItem>& heap, double& tau) const
 	{
 		for (const auto& cluster : listClusters)
 		{
@@ -124,7 +136,7 @@ public:
 					heap.pop();					
 				}
 				
-				heap.push(HeapItem<T>(cluster.Center, d));
+				heap.push(HeapItem(cluster.Center, d));
 
 				if (heap.size() == k)
 				{
@@ -136,14 +148,16 @@ public:
 			{
 				for (const auto& item : cluster.Bucket)
 				{
-					if (distance(target, item) <= tau)
+					d = distance(target, item);
+
+					if (d <= tau)
 					{
 						if (heap.size() == k)
 						{
 							heap.pop();
 						}
 
-						heap.push(HeapItem<T>(cluster.Center, d));
+						heap.push(HeapItem(item, d));
 
 						if (heap.size() == k)
 						{
