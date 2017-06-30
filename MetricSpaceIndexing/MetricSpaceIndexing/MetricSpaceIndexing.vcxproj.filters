@@ -18,13 +18,13 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="VPT.h">
+    <ClInclude Include="bk-tree.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BKT.h">
+    <ClInclude Include="vp-tree.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="RevLC.h">
+    <ClInclude Include="rev-lc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

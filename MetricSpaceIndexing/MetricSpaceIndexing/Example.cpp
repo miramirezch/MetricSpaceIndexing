@@ -1,7 +1,7 @@
 #pragma once
-#include "VPT.h"
-#include "BKT.h"
-#include "RevLC.h"
+#include "vp-tree.h"
+#include "bk-tree.h"
+#include "rev-lc.h"
 #include <iostream>
 
 int main()

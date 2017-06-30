@@ -1,5 +1,5 @@
 #pragma once
-#include "VPT.h"
+#include "vp-tree.h"
 #include <vector>
 #include <random>
 #include <functional>

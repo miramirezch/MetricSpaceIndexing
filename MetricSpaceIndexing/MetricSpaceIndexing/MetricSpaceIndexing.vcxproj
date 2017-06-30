@@ -111,9 +111,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="BKT.h" />
-    <ClInclude Include="RevLC.h" />
-    <ClInclude Include="VPT.h" />
+    <ClInclude Include="bk-tree.h" />
+    <ClInclude Include="rev-lc.h" />
+    <ClInclude Include="vp-tree.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Example.cpp" />
